@@ -2,7 +2,7 @@ import re
 
 
 class Parser:
-    """Handles reading of the VM code file. Formats and parses each line into its lexical components."""
+    """Handles reading of the input file. Formats and parses each line into its lexical components."""
 
     # Command Types
     C_ARITHMETIC  = 1
