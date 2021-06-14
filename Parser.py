@@ -54,8 +54,8 @@ class Parser:
         if not parts:
             return False
         command_type = Parser._identify_command_type(parts)
-        arg_1 = Parser._identify_arg_1(command_type, parts[1])
-        arg_2 = Parser._identify_arg_2(command_type, parts[2])
+        arg_1 = Parser._identify_arg_1(command_type, parts)
+        arg_2 = Parser._identify_arg_2(command_type, parts)
         return command_type, arg_1, arg_2
     
     @staticmethod
@@ -83,11 +83,12 @@ class Parser:
         if command in Parser.ARITHMETIC: return Parser.C_ARITHMETIC
         raise Exception("'{}' does not match any valid command"\
             .format(command))
-        return
     
     @staticmethod
-    def _identify_arg_1(command_type, arg_1):
-        pass
+    def _identify_arg_1(command_type, parts):
+        if command_type == Parser.C_ARITHMETIC: return parts[0]
+        if command_type == Parser.C_RETURN: return None
+        return parts[1]
     
     @staticmethod
     def _identify_arg_2(command_type, arg_2):
@@ -104,4 +105,4 @@ print(p.ARITHMETIC)
 
 print(p._format_line("    asd asdf asdf asdf asdf // asdgasg\n"))
 print(p._format_line("    as"))
-print(p._parse_line("Push asdf 3"))
+print(p._parse_line("push asdf 3"))
