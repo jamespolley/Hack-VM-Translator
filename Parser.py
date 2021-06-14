@@ -51,8 +51,7 @@ class Parser:
     @staticmethod
     def _parse_line(line_to_parse):
         parts = Parser._format_line(line_to_parse)
-        if not parts:
-            return False
+        if not parts: return False
         command_type = Parser._identify_command_type(parts)
         arg_1 = Parser._identify_arg_1(command_type, parts)
         arg_2 = Parser._identify_arg_2(command_type, parts)
@@ -63,8 +62,7 @@ class Parser:
         """Return tuple of formatted line's component parts, filled in with None if part is absent."""
         line = re.sub(Parser.RE_COMMENT, "", line_to_format).strip()
         parts = re.split(Parser.RE_WHITESPACE, line)
-        if not parts[0]:
-            return False
+        if not parts[0]: return False
         while len(parts) < 3:
             parts.append(None)
         return tuple(parts[:3])
@@ -91,8 +89,13 @@ class Parser:
         return parts[1]
     
     @staticmethod
-    def _identify_arg_2(command_type, arg_2):
-        pass
+    def _identify_arg_2(command_type, parts):
+        if (command_type == Parser.C_PUSH) or \
+            (command_type == Parser.C_POP) or \
+            (command_type == Parser.C_FUNCTION) or \
+            (command_type == Parser.C_CALL):
+            return int(parts[2])
+        return None
 
 
 # tests
