@@ -4,7 +4,7 @@ from CodeWriter import CodeWriter
 
 class VMTranslator:
     """
-    Main class. Handles the input file. Drives the VM translation process.
+    Main class. Handles input, reads the VM file, writes to the assembly file, and drives the VM translation process.
     """
 
     def __init__(self, vm_file_path):
@@ -30,14 +30,5 @@ class VMTranslator:
     @staticmethod
     def write(asm_file_path, asm_code):
         with open(asm_file_path, "w") as f:
-            [f.write(line+"\n") for line in asm_code]
-
-
-        
-
-# tests
-vmt = VMTranslator("assets\MemoryAccess\BasicTest\BasicTest.vm")
-print(vmt.file_name)
-print(vmt.parser.raw_file)
-vmt.translate()
-# vmt.write()
+            for line in asm_code:
+                f.write(line + "\n")
