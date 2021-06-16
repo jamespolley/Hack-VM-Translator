@@ -63,9 +63,6 @@ class CodeWriter(list):
         self.append("")
     
     def generate_push_pop(self, command, segment, i):
-
-
-
         # Select target register (for push OR pop)
         if segment == "constant":
             if command == "pop": pass # To Do: raise error
@@ -82,7 +79,6 @@ class CodeWriter(list):
         elif segment == "temp":
             if i not in range(8):
                 # To Do: raise error, invalid input
-                print("got here___error", i)
                 return
             self.append("@R{}".format(5+i))
         elif segment == "static":
@@ -107,8 +103,6 @@ class CodeWriter(list):
             'D=M', # D = *SP
             '@R13', 'A=M', 'M=D' # *addr = D = *SP
         ])
-             
-            
 
     def generate_arithmetic(self, command):
         self.extend(["@SP", "AM=M-1", "D=M", "A=A-1"])
@@ -125,11 +119,3 @@ class CodeWriter(list):
             for i in self:
                 f.write(i)
                 f.write("\n")
-        
-        
-# test
-cw = CodeWriter("assets\MemoryAccess\BasicTest\BasicTest.vm")
-print(cw)
-print(cw.file_name)
-if 6 not in range(8):
-    print("ERROR")
