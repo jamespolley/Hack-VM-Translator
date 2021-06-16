@@ -1,23 +1,24 @@
-# Input:    file.vm
-# Output:   file.asm
-# 
-# Main class. Construct Parser and CodeWriter, go through file, parse
-# each line, generate code.
-
 from Parser import Parser
+from CodeWriter import CodeWriter
 
 
 class VMTranslator:
     """Main class. Handles the input file. Drives the VM translation process."""
     def __init__(self, vm_file):
         self.parser = Parser(vm_file)
-        # to do - add CodeWriter
+        self.code_writer = CodeWriter(vm_file)
     
     def translate(self):
         while self.parser.has_next():
             self.parser.advance()
-            line = self.parser.parse_current_line()
+            parsed_line = self.parser.parse_current_line()
+            if not parsed_line:
+                continue
+            self.code_writer.generate_command(parsed_line)
+        self.code_writer.write()
+        
 
 # tests
 vmt = VMTranslator("assets\MemoryAccess\BasicTest\BasicTest.vm")
 vmt.translate()
+vmt.code_writer.write()
