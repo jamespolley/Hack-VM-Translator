@@ -36,12 +36,6 @@ $ python VMTranslator.py file.vm
     * function _functionName nVars_
     * call _functionName nArgs_
     * return
-
-| Function |
-|----------|
-| function _functionName nVars_ |
-table instead of bullet point list???
-
 ### Segments
 * [To do]
 ### Special Symbols

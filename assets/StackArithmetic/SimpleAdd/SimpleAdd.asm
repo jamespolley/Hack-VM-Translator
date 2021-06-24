@@ -7,6 +7,7 @@ M=D
 @SP
 M=M+1
 
+
 // push constant 8
 @8
 D=A
@@ -16,6 +17,7 @@ M=D
 @SP
 M=M+1
 
+
 // add 
 @SP
 AM=M-1
@@ -23,3 +25,7 @@ D=M
 A=A-1
 M=M+D
 
+
+(EXIT)
+@EXIT
+0;JMP

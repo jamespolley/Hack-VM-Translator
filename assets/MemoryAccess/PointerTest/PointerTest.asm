@@ -7,6 +7,7 @@ M=D
 @SP
 M=M+1
 
+
 // pop pointer 0
 @R3
 D=A
@@ -19,6 +20,7 @@ D=M
 A=M
 M=D
 
+
 // push constant 3040
 @3040
 D=A
@@ -27,6 +29,7 @@ A=M
 M=D
 @SP
 M=M+1
+
 
 // pop pointer 1
 @R4
@@ -40,6 +43,7 @@ D=M
 A=M
 M=D
 
+
 // push constant 32
 @32
 D=A
@@ -48,6 +52,7 @@ A=M
 M=D
 @SP
 M=M+1
+
 
 // pop this 2
 @THIS
@@ -64,6 +69,7 @@ D=M
 A=M
 M=D
 
+
 // push constant 46
 @46
 D=A
@@ -72,6 +78,7 @@ A=M
 M=D
 @SP
 M=M+1
+
 
 // pop that 6
 @THAT
@@ -88,6 +95,7 @@ D=M
 A=M
 M=D
 
+
 // push pointer 0
 @R3
 D=M
@@ -96,6 +104,7 @@ A=M
 M=D
 @SP
 M=M+1
+
 
 // push pointer 1
 @R4
@@ -106,12 +115,14 @@ M=D
 @SP
 M=M+1
 
+
 // add 
 @SP
 AM=M-1
 D=M
 A=A-1
 M=M+D
+
 
 // push this 2
 @THIS
@@ -125,12 +136,14 @@ M=D
 @SP
 M=M+1
 
+
 // sub 
 @SP
 AM=M-1
 D=M
 A=A-1
 M=M-D
+
 
 // push that 6
 @THAT
@@ -144,6 +157,7 @@ M=D
 @SP
 M=M+1
 
+
 // add 
 @SP
 AM=M-1
@@ -151,3 +165,7 @@ D=M
 A=A-1
 M=M+D
 
+
+(EXIT)
+@EXIT
+0;JMP
