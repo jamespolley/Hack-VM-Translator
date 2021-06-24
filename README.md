@@ -36,5 +36,21 @@ $ python VMTranslator.py file.vm
     * function _functionName nVars_
     * call _functionName nArgs_
     * return
+
+| Function |
+|----------|
+| function _functionName nVars_ |
+table instead of bullet point list???
+
 ### Segments
 * [To do]
+### Special Symbols
+| Symbol | Usage |
+|--------|-------|
+| SP     | Predefined symbol that points to the memory address within the host RAM just after the address containing the topmost stack value. |
+| LCL, ARG, THIS, THAT | Predefined symbols that point to the base addresses within the host RAM of the virtual segments _local, argument, this,_ and _that_ of the currently running VM function. |
+| R13-R15 | Predefined symbols that can be used for any purpose. |
+| _Xxx.i_ symbols | Each static variable _i_ in the file _Xxx_ is translated into the assembly variable _j_, where _j_ is incremented each time a new static variable is encountered in the file _Xxx.vm_. In the assembly process, these variables are allocated to RAM by the Hack assembler. |
+| _functionName$label_ | [to do] |
+| _functionName_ | [to do] |
+| _functionName$ret.i_ | [to do] |
