@@ -32,7 +32,7 @@ class Parser:
         tokens = re.split(Parser.RE_WHITESPACE, line)
         if not tokens[0]:
             return False
-        while len(tokens) < 2:
+        while len(tokens) < 3:
             tokens.append(None)
         if len(tokens) > 3:
             # TO DO: raise error, too many arguments

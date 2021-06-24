@@ -1,29 +1,25 @@
-# To do:
-    # Improve comments (especially for assembly code explanations)
-    # Add docstrings??
+# To do: add docstrings??
 
 
 class CodeWriter(list):
     """
     Generates symbolic Hack assembly code from parsed VM commands.
     """
-
-    ARITHMETIC_LOGIC = [
-        "add", "sub", "neg", "eq", "gt", "lt", "and", "or", "not"
-    ] # still needed?
-    
     SEGMENTS = {
-        "local": "@LCL",        # RAM[1]
-        "argument": "@ARG",     # RAM[2]
-        "this": "@THIS",        # RAM[3]
-        "that": "@THAT"         # RAM[4]
+        "local": "@LCL",
+        "argument": "@ARG",
+        "this": "@THIS",
+        "that": "@THAT"
     }
-    
-    def __init__(self, file_name):
+
+    def __init__(self, file_name, include_comments):
         self.current_file_name = file_name
-        self.current_function = None
+        self.include_comments = include_comments
         self.comparison_count = 0
         self.call_count = 0
+    
+    def set_current_file_name(self, file_name):
+        self.current_file_name = file_name
 
     def generate_command(self, parsed_line):
         command, args = parsed_line
@@ -60,19 +56,20 @@ class CodeWriter(list):
         elif command == "function":
             self.generate_function(args[0], args[1])
         elif command == "call":
-            self.generate_function(args[0], args[1])
+            self.generate_call(args[0], args[1])
         elif command == "return":
             self.generate_return()
         
         else:
             # To Do: raise error, invalid command
+            print("ERROR")
             return
-        self.append("")
+        self.append("\n")
 
     def generate_push_pop(self, command, segment, i):
         # To Do: separate into push/pop functions?? (lot of overlap...)
         # To Do: improve comments
-        # 
+
         # Select target register (for push OR pop)
         if segment == "constant":
             if command == "pop": pass # To Do: raise error
@@ -92,11 +89,12 @@ class CodeWriter(list):
                 return
             self.append("@R{}".format(5+i))
         elif segment == "static":
-            self.append("@{}.{}".format(self.file_name, i))
+            self.append("@{}.{}".format(self.current_file_name, i))
+            self.append("D=M")
         else:
             # To Do: raise error, segment not valid
             return
-        # 
+        
         if command == "push":
             if segment == "constant":
                 self.append("D=A")
@@ -176,12 +174,10 @@ class CodeWriter(list):
         self.append("({})".format(label))
 
     def generate_goto(self, label):
-        self.extend(["({})".format(label), "0;JMP"])
+        self.extend(["@"+label, "0;JMP"])
 
     def generate_if_goto(self, label):
-        # Select top two values on stack, jump if not equal
         self.extend(["@SP", "M=M-1", "A=M", "D=M", "@"+label, "D;JNE"])
-        # (can this be simplified??)
 
     def generate_function(self, function_name, n_vars):
         # Create label
@@ -194,31 +190,29 @@ class CodeWriter(list):
     def generate_call(self, function_name, n_args):
         # Create function label
         label = "{}$ret.{}".format(function_name, self.call_count)
-        # 
+        
         # Push return address (declared below) onto the stack 
         self.extend([
-            "{}$ret.{}".format(function_name, self.call_count),
-            "D=A", "@SP", "A=M", "M=D", "@SP", "M=M+1"
-        ])
-        # 
+            "@"+label, "D=A", "@SP", "A=M", "M=D", "@SP", "M=M+1"])
+
         # Push LCL, ARG, THIS, and THAT pointers onto the stack
         for pointer in ["@LCL", "@ARG", "@THIS", "@THAT"]:
             self.extend([
-                pointer, "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1"
-            ])
-        # 
+                pointer, "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1"])
+        
         # Set LCL pointer to SP
         self.extend(["@SP", "D=M", "@LCL", "M=D"])
-        # 
+
         # Set ARG pointer to the start of arguments in the current frame
-        self.extend(["@5", "D=D-A", "@"+n_args, "D=D-A", "@ARG", "M=D"])
-        # 
-        # Goto function
+        self.extend([
+            "@5", "D=D-A", "@"+str(n_args), "D=D-A", "@ARG", "M=D"])
+        
+        # Go to function
         self.extend(["@"+function_name, "0;JMP"])
-        # 
+
         # Generate return address label
         self.append("({})".format(label))
-        # 
+
         # Increment call count
         self.call_count += 1
 
@@ -228,7 +222,7 @@ class CodeWriter(list):
             "@LCL", "D=M", "@R13", "M=D",
 
             # Calculate return address, store it in R14
-            "D=M", "@5", "A=D-A", "D=M", "@R14", "M=D",
+            "@5", "A=D-A", "D=M", "@R14", "M=D",
 
             # Move result to beginning of the ARG segment
             "@SP", "M=M-1", "A=M", "D=M", "@ARG", "A=M", "M=D",
@@ -237,16 +231,16 @@ class CodeWriter(list):
             "@ARG", "D=M", "@SP", "M=D+1",
 
             # Restore THAT
-            "R13", "AM=M-1", "D=M", "@THAT", "M=D",
+            "@R13", "AM=M-1", "D=M", "@THAT", "M=D",
 
             # Restore THIS
-            "R13", "AM=M-1", "D=M", "@THIS", "M=D",
+            "@R13", "AM=M-1", "D=M", "@THIS", "M=D",
 
              # Restore ARG
-            "R13", "AM=M-1", "D=M", "@ARG", "M=D",
+            "@R13", "AM=M-1", "D=M", "@ARG", "M=D",
 
              # Restore LCL
-            "R13", "AM=M-1", "D=M", "@LCL", "M=D",
+            "@R13", "AM=M-1", "D=M", "@LCL", "M=D",
             # (above, loop instead?)
 
             # Jump to return address
@@ -254,9 +248,8 @@ class CodeWriter(list):
         ])
 
     def generate_init(self):
-        pass
+        self.extend(["@256", "D=A", "@SP", "M=D"])
+        self.generate_call("Sys.init", 0)
 
     def generate_end(self):
-        pass
-
-
+        self.extend(["(EXIT)", "@EXIT", "0;JMP"])
