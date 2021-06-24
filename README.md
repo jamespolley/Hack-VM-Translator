@@ -1,7 +1,7 @@
 # Hack-VM-Translator
 Virtual Machine translator for symbolic Hack assembly code. Project from weeks 1 and 2 of the course, [Build a Modern Computer from First Principles: From Nand to Tetris Part II](https://www.coursera.org/learn/nand2tetris2).
 ## Description
-NOTE: This project is in progress, and currently does not work.
+Hack-VM-Translator converts VM code into symbolic Hack assembly code, which is designed for the Hack computer. Translation of virtual machine code into assembly code is part of a two-tier compilation process (notably used by Java). Virtual machine code is an intermediary step on the journey from high-level language code to machine code that is ultimately run by a computer.
 
 This project is separated into the following components:
 * __VMTranslator__ - Main class. Handles input, reads the VM file, writes to the assembly file, and drives the VM translation process.
