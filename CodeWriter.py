@@ -1,4 +1,4 @@
-# To do: add docstrings??
+# To do: improve docstrings
 
 
 class CodeWriter(list):
@@ -25,12 +25,13 @@ class CodeWriter(list):
         command, args = parsed_line
 
         # Include comments (new function?)
-        comment = "// " + command + " "
-        if args[0]:
-            comment += args[0] + " "
-            if args[1]:
-                comment += args[1]
-        self.append(comment)
+        if self.include_comments:
+            comment = "// " + command + " "
+            if args[0]:
+                comment += args[0] + " "
+                if args[1]:
+                    comment += args[1]
+            self.append(comment)
 
         # Memory Access
         if command in ("push", "pop"):
@@ -61,18 +62,16 @@ class CodeWriter(list):
             self.generate_return()
         
         else:
-            # To Do: raise error, invalid command
-            print("ERROR")
-            return
+            raise Exception() # To Do - elaborate
         self.append("\n")
 
     def generate_push_pop(self, command, segment, i):
-        # To Do: separate into push/pop functions?? (lot of overlap...)
         # To Do: improve comments
 
         # Select target register (for push OR pop)
         if segment == "constant":
-            if command == "pop": pass # To Do: raise error
+            if command == "pop":
+                raise Exception() # To Do - elaborate
             self.append("@{}".format(i))
         elif segment in ("local", "argument", "this", "that"):
             self.extend([
@@ -80,20 +79,17 @@ class CodeWriter(list):
             ])
         elif segment == "pointer":
             if i not in (0, 1):
-                # To Do: raise error, invalid input
-                return
+                raise Exception() # To Do - elaborate
             self.append("@R{}".format(3+i))
         elif segment == "temp":
             if i not in range(8):
-                # To Do: raise error, invalid input
-                return
+                raise Exception() # To Do - elaborate
             self.append("@R{}".format(5+i))
         elif segment == "static":
             self.append("@{}.{}".format(self.current_file_name, i))
             self.append("D=M")
         else:
-            # To Do: raise error, segment not valid
-            return
+            raise Exception() # To Do - elaborate
         
         if command == "push":
             if segment == "constant":
@@ -101,21 +97,26 @@ class CodeWriter(list):
             else:
                 self.append("D=M")
             self.extend([
-                '@SP', 'A=M', 'M=D', # *SP = *addr
-                '@SP', 'M=M+1' # SP++
+                # Set *SP to *addr
+                "@SP", "A=M", "M=D",
+
+                # Increment SP
+                "@SP", "M=M+1"
             ])
         else: # command == "pop"
-            self.extend(['D=A', 
-            '@R13', 'M=D', # addr stored in R13
-            '@SP', 'AM=M-1', # SP--
-            'D=M', # D = *SP
-            '@R13', 'A=M', 'M=D' # *addr = D = *SP
-        ])
+            self.extend([
+                "D=A",
+
+                # Decrement SP
+                "@SP", "AM=M-1",
+
+                # Set *addr, *SP, and D to be equal
+                "D=M", "@R13", "A=M", "M=D"])
 
     def generate_arithmetic(self, command):
         # Select values to perform operation
         self.extend(["@SP", "AM=M-1", "D=M", "A=A-1"])
-        # 
+        
         # Perform arithmetic operation
         if command == "add":
             self.append("M=M+D")
@@ -129,7 +130,7 @@ class CodeWriter(list):
     def generate_unary(self, command):
         # Select value to perform operation
         self.extend(["@SP", "A=M-1"])
-        # 
+
         # Perform unary operation
         if command == "neg":
             self.append("M=-M")
@@ -160,10 +161,13 @@ class CodeWriter(list):
         self.extend([
             # Set to false (0), jump to C*_ELSE
             "D=0", "@"+else_label, "0;JMP",
+
             # C*_IF_** jump destination, set to true (-1)
             "({})".format(if_label), "D=-1",
+
             # C*_ELSE jump destination
             "({})".format(else_label),
+
             # Save result to stack
             "@SP", "A=M-1", "M=D"
         ])
@@ -200,18 +204,18 @@ class CodeWriter(list):
             self.extend([
                 pointer, "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1"])
         
-        # Set LCL pointer to SP
-        self.extend(["@SP", "D=M", "@LCL", "M=D"])
-
-        # Set ARG pointer to the start of arguments in the current frame
         self.extend([
-            "@5", "D=D-A", "@"+str(n_args), "D=D-A", "@ARG", "M=D"])
-        
-        # Go to function
-        self.extend(["@"+function_name, "0;JMP"])
+            # Set LCL pointer to SP
+            "@SP", "D=M", "@LCL", "M=D",
 
-        # Generate return address label
-        self.append("({})".format(label))
+            # Set ARG pointer to start of arguments in current frame
+            "@5", "D=D-A", "@"+str(n_args), "D=D-A", "@ARG", "M=D",
+        
+            # Go to function
+            "@"+function_name, "0;JMP",
+
+            # Generate return address label
+            "({})".format(label)])
 
         # Increment call count
         self.call_count += 1

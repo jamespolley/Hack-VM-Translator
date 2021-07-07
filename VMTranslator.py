@@ -1,4 +1,4 @@
-# To Do: improve comments, docstrings?
+# To Do: improve docstrings
 
 from Parser import Parser
 from CodeWriter import CodeWriter
@@ -74,10 +74,8 @@ class VMTranslator:
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        # To do: raise error
-        print("ERROR")
+        raise Exception() # To Do - elaborate
     else:
         input_files = sys.argv[1]
         output_file = sys.argv[2]
-
         vmt = VMTranslator(input_files, output_file)

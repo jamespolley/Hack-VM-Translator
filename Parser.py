@@ -35,7 +35,7 @@ class Parser:
         while len(tokens) < 3:
             tokens.append(None)
         if len(tokens) > 3:
-            # TO DO: raise error, too many arguments
+            raise Exception() # To Do - elaborate
             return False
         command, args = tokens[0], tuple(tokens[1:])
         return command, args
